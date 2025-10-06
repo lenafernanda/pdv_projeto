@@ -1,0 +1,109 @@
+/* Estilos personalizados para o sistema Mini PDV */
+
+/* Estilização dos cards de produtos */
+.product-card { 
+    transition: transform 0.2s; 
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Efeito hover para os cards de produtos */
+.product-card:hover { 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Estilização dos itens do carrinho */
+.cart-item { 
+    border-left: 4px solid #0d6efd;
+    background: #f8f9fa;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+
+/* Estilização da área de total do carrinho */
+.cart-total {
+    background: linear-gradient(135deg, #198754, #0d6efd);
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+/* Estilização do badge de quantidade */
+.quantity-badge {
+    font-size: 0.9em;
+    padding: 5px 10px;
+}
+
+/* Estilização dos títulos das seções */
+.section-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* Estilização dos detalhes de pagamento (inicialmente ocultos) */
+.payment-details {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+/* Container do QR Code para pagamento PIX */
+.qrcode-container {
+    text-align: center;
+    padding: 15px;
+}
+
+/* Estilização do QR Code (simulado) */
+.qrcode {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+}
+
+/* Estilização dos inputs de cartão */
+.card-input {
+    letter-spacing: 1.5px;
+}
+
+/* Estilização do botão flutuante para adicionar produto */
+.btn-add-product {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 24px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+/* Classes para indicar o nível de estoque */
+.stock-low {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.stock-medium {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.stock-high {
+    color: #198754;
+    font-weight: bold;
+}

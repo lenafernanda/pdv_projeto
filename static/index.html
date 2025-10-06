@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini PDV - Sistema de Carrinho</title>
+    
+    <!-- Importação do Bootstrap para estilização -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Importação dos ícones do Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Importação do arquivo de estilos personalizados -->
+    <!-- Importação do arquivo de estilos personalizados -->
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="bg-light">
+    <!-- Barra de navegação superior -->
+    <nav class="navbar navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">
+                🛒 Mini PDV - Sistema de Carrinho
+            </span>
+            <span class="text-white">
+                <span id="cart-count" class="badge bg-warning text-dark">0</span>
+                itens no carrinho
+            </span>
+        </div>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <div class="container py-4">
+        <!-- Cabeçalho da seção de produtos -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="section-title mb-0">🛍️ Produtos Disponíveis</h3>
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#productModal">
+                <i class="bi bi-plus-circle"></i> Gerenciar Produtos
+            </button>
+        </div>
+        
+        <div class="row">
+            <!-- Seção de produtos (esquerda) -->
+            <div class="col-lg-8">
+                <!-- Container onde os produtos serão exibidos -->
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3" id="produtos-container">
+                    <!-- Os produtos serão carregados aqui via JavaScript -->
+                </div>
+
+                <!-- Indicador de carregamento -->
+                <div id="loading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Carregando produtos...</p>
+                </div>
+            </div>
+
+            <!-- Seção do carrinho (direita) -->
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 20px;">
+                    <div class="card shadow">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">📋 Meu Carrinho</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Mensagem de carrinho vazio -->
+                            <div id="carrinho-vazio" class="text-center py-4">
+                                <div class="text-muted mb-3">
+                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-muted">Seu carrinho está vazio</p>
+                                <small>Clique nos produtos para adicionar</small>
+                            </div>
+
+                            <!-- Itens do carrinho (inicialmente oculto) -->
+                            <div id="carrinho-itens" style="display: none;">
+                                <!-- Lista de itens do carrinho -->
+                                <div id="lista-carrinho" class="mb-3"></div>
+                                
+                                <!-- Área de totalização -->
+                                <div class="cart-total mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Total da Compra:</span>
+                                        <span id="total-carrinho" class="fs-4">R$ 0,00</span>
+                                    </div>
+                                </div>
+
+                                <!-- Seleção de método de pagamento -->
+                                <div class="mb-3">
+                                    <label class="form-label">💳 Forma de Pagamento:</label>
+                                    <select id="payment-method" class="form-select">
+                                        <option value="pix">📱 PIX</option>
+                                        <option value="cartao">💳 Cartão de Crédito</option>
+                                        <option value="debito">💳 Cartão de Débito</option>
+                                    </select>
+                                </div>
+
+                                <!-- Detalhes do pagamento PIX (inicialmente oculto) -->
+                                <div id="pix-details" class="payment-details">
+                                    <div class="qrcode-container">
+                                        <h6>📱 Pagamento PIX</h6>
+                                        <div class="qrcode mb-2">
+                                            <div style="font-size: 60px;">📱</div>
+                                        </div>
+                                        <p class="small">Escaneie o QR Code com seu app bancário</p>
+                                        <div class="bg-light p-2 rounded small">
+                                            <strong>Chave PIX:</strong> mini-pdv@example.com<br>
+                                            <strong>Valor:</strong> <span id="pix-amount">R$ 0,00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Detalhes do pagamento com cartão (inicialmente oculto) -->
+                                <div id="card-details" class="payment-details">
+                                    <h6>💳 Informações do Cartão</h6>
+                                    <div class="mb-2">
+                                        <label class="form-label small">Número do Cartão</label>
+                                        <input type="text" class="form-control card-input" placeholder="0000 0000 0000 0000" 
+                                            pattern="[0-9\s]{13,19}" autocomplete="cc-number" maxlength="19">
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-7">
+                                            <label class="form-label small">Validade</label>
+                                            <input type="text" class="form-control" placeholder="MM/AA" 
+                                                pattern="(0[1-9]|1[0-2])\/[0-9]{2}" maxlength="5">
+                                        </div>
+                                        <div class="col-5">
+                                            <label class="form-label small">CVV</label>
+                                            <input type="text" class="form-control" placeholder="123" 
+                                                pattern="[0-9]{3}" maxlength="3">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">Nome no Cartão</label>
+                                        <input type="text" class="form-control" placeholder="Como está no cartão">
+                                    </div>
+                                    <div class="form-check small mb-2">
+                                        <input class="form-check-input" type="checkbox" id="save-card">
+                                        <label class="form-check-label" for="save-card">
+                                            Salvar informações do cartão
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Botão para finalizar a compra -->
+                                <button id="btn-checkout" class="btn btn-success w-100 btn-lg mt-3" disabled>
+                                    ✅ Finalizar Compra
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultado do checkout (inicialmente oculto) -->
+        <div id="checkout-result" class="alert alert-success mt-4" style="display: none;">
+            <h4>🎉 Compra Realizada com Sucesso!</h4>
+            <div id="checkout-details" class="mt-3"></div>
+            <button class="btn btn-outline-primary mt-3" onclick="location.reload()">
+                🛒 Fazer Nova Compra
+            </button>
+        </div>
+    </div>
+
+    <!-- Botão flutuante para adicionar produto -->
+    <button class="btn btn-primary btn-add-product" data-bs-toggle="modal" data-bs-target="#productModal">
+        <i class="bi bi-plus-lg"></i>
+    </button>
+
+    <!-- Modal para cadastro de produtos -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="productModalLabel">
+                        <i class="bi bi-box-seam"></i> Cadastro de Produto
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulário de cadastro de produto -->
+                    <form id="productForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="productName" class="form-label">Nome do Produto *</label>
+                                    <input type="text" class="form-control" id="productName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="productPrice" class="form-label">Preço (R$) *</label>
+                                    <input type="number" class="form-control" id="productPrice" min="0" step="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productStock" class="form-label">Estoque *</label>
+                                    <input type="number" class="form-control" id="productStock" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productCategory" class="form-label">Categoria</label>
+                                    <select class="form-select" id="productCategory">
+                                        <option value="alimentos">Alimentos</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="productDescription" class="form-label">Descrição do Produto</label>
+                            <textarea class="form-control" id="productDescription" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="productImage" class="form-label">Imagem do Produto (URL)</label>
+                            <input type="url" class="form-control" id="productImage" placeholder="https://exemplo.com/imagem.jpg">
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="productActive" checked>
+                            <label class="form-check-label" for="productActive">
+                                Produto ativo
+                            </label>
+                        </div>
+                    </form>
+                    
+                    <!-- Lista de produtos cadastrados -->
+                    <div class="mt-4">
+                        <h5>Produtos Cadastrados</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Preço</th>
+                                        <th>Estoque</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productTableBody">
+                                    <!-- Produtos serão listados aqui via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-danger" id="clearForm">
+                        <i class="bi bi-trash"></i> Limpar
+                    </button>
+                    <button type="button" class="btn btn-success" id="saveProduct">
+                        <i class="bi bi-check-circle"></i> Salvar Produto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Importação do Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Importação do arquivo JavaScript personalizado -->
+    <script src="/static/script.js"></script>
+</body>
+</html>
